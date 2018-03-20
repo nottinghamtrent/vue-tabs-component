@@ -19,6 +19,10 @@
                 ></a>
             </li>
         </ul>
+        <div class="tabs-component-navigation">
+            <span><button class="previous" @click="previousTab(true)">Previous</button></span>
+            <span><button class="next" @click="nextTab(true)">Next</button></span>
+        </div>
         <div class="tabs-component-panels">
             <slot/>
         </div>
@@ -51,6 +55,11 @@
             storageKey() {
                 return `vue-tabs-component.cache.${window.location.host}${window.location.pathname}`;
             },
+
+            activeTabIndex() {
+                const tab = this.findTab(this.activeTabHash);
+                return this.tabs.indexOf(tab);
+            }
         },
 
         created() {
@@ -133,6 +142,56 @@
                     });
                 }
             },
+
+            nextTab(cycle = false) {
+                const currentIndex = this.activeTabIndex;
+                let newIndex = currentIndex;
+
+                // Loop through each 'next' tab until we find one we can goto (i.e. not disabled)
+                do {
+                    newIndex++;
+                    if (newIndex === this.tabs.length) {
+                        newIndex = cycle ? 0 : currentIndex;
+                    }        
+                } while(!this.canMoveToSelectedIndex(newIndex));
+
+                this.selectTabByIndex(newIndex);
+            },
+
+            previousTab(cycle = false) {
+                const currentIndex = this.activeTabIndex;
+                let newIndex = currentIndex;
+
+                // Loop through each 'previous' tab until we find one we can goto (i.e. not disabled)
+                do {
+                    newIndex--;
+                    if (newIndex < 0) {
+                        newIndex = cycle ? this.tabs.length - 1 : currentIndex;
+                    }        
+
+                } while(!this.canMoveToSelectedIndex(newIndex));
+
+                this.selectTabByIndex(newIndex);
+            },            
+
+            canMoveToSelectedIndex(index) {
+                const tabHash = this.tabs[index].hash;
+                const newTab = this.findTab(tabHash);
+
+                // If the tab is disabled, we can't select it
+                if(newTab.isDisabled) {
+                    return false;
+                }
+                
+                return true;
+            },
+
+            selectTabByIndex(index) {
+                const tab = this.tabs[index];
+                const href = tab.hash;
+
+                this.selectTab(href, null);
+            },          
         },
     };
 </script>

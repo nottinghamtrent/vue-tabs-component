@@ -1,4 +1,4 @@
-<html>
+<html lang="en">
 <head>
     <title>vue-tabs-component</title>
 
@@ -145,12 +145,12 @@
     <h1 class="page-title">
         <a href="https://github.com/spatie/vue-tabs-component">Vue-tabs-component</a>
     </h1>
-    <tabs>
+    <tabs cache-lifetime="0">
         <tab name="First tab">
             <h2 class="page-subtitle">First tab</h2>
             This is the content of the first tab.
         </tab>
-        <tab name="Second tab">
+        <tab name="Second tab" :is-active="true">
             <h2 class="page-subtitle">Second tab</h2>
             This is the content of the second tab.
         </tab>
