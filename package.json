@@ -29,6 +29,7 @@
     "vue": "^2.3.0"
   },
   "devDependencies": {
+    "@vue/test-utils": "^1.0.0-beta.12",
     "babel-core": "^6.24.1",
     "babel-loader": "^7.0.0",
     "babel-plugin-member-expression-literals": "^1.0.1",

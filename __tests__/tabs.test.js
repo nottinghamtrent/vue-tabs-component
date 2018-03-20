@@ -2,6 +2,7 @@ import { Tab, Tabs } from '../src';
 import Vue from 'vue/dist/vue.js';
 import expiringStorage from '../src/expiringStorage';
 import LocalStorageMock from './helpers/LocalStorageMock';
+import { shallow, mount } from '@vue/test-utils'
 
 const localStorage = new LocalStorageMock();
 
@@ -142,6 +143,174 @@ describe('vue-tabs-component', () => {
         await createVm();
 
         expect(document.body.innerHTML).toMatchSnapshot();
+    });
+});
+
+describe('vue-tabs-component navigation', () => {
+    Vue.component('tabs', Tabs);
+    Vue.component('tab', Tab);
+
+    beforeEach(() => {
+        document.body.innerHTML = `
+            <div id="app">
+                <tabs cache-lifetime="0">
+                    <tab name="First tab">
+                        First tab content
+                    </tab>
+                    <tab name="Second tab">
+                        Second tab content
+                    </tab>
+                    <tab name="Third tab">
+                        Third tab content
+                    </tab>
+                </tabs>
+            </div>
+        `;
+
+        localStorage.clear();
+
+        window.location.hash = '';
+    });
+
+    it('nextTab moves to next tab', async() => {
+        const tabs = await createVm();
+        tabs.nextTab();
+
+        expect(tabs.activeTabHash).toEqual('#second-tab');
+    });
+
+    it('nextTab stays on last tab when cycle is false', async() => {
+        const tabs = await createVm();
+        tabs.selectTab("#third-tab", null);
+        tabs.nextTab(false);
+
+        expect(tabs.activeTabHash).toEqual('#third-tab');
+    });   
+    
+    it('nextTab moves to first tab from last when cycle is true', async() => {
+        const tabs = await createVm();
+        tabs.selectTab("#third-tab", null);
+        tabs.nextTab(true);
+
+        expect(tabs.activeTabHash).toEqual('#first-tab');
+    });  
+    
+    it('previousTab goes to previous', async() => {
+        const tabs = await createVm();
+        tabs.selectTab("#third-tab", null);
+        tabs.previousTab();
+
+        expect(tabs.activeTabHash).toEqual('#second-tab');
+    });        
+
+    it('previousTab goes to last tab from first when cycle is true', async() => {
+        const tabs = await createVm();
+        tabs.previousTab(true);
+
+        expect(tabs.activeTabHash).toEqual('#third-tab');
+    });    
+
+    it('previousTab stays on first tab when cycle is false', async() => {
+        const tabs = await createVm();
+        tabs.previousTab(false);
+
+        expect(tabs.activeTabHash).toEqual('#first-tab');
+    });
+});
+
+describe('vue-tabs-component navigation with disabled tab', () => {
+    Vue.component('tabs', Tabs);
+    Vue.component('tab', Tab);
+
+    beforeEach(() => {
+        document.body.innerHTML = `
+            <div id="app">
+                <tabs cache-lifetime="0">
+                    <tab name="First tab">
+                        First tab content
+                    </tab>
+                    <tab name="Second tab">
+                        Second tab content
+                    </tab>
+                    <tab name="Third tab" :is-disabled="true">
+                        Third tab content
+                    </tab>
+                </tabs>
+            </div>
+        `;
+
+        localStorage.clear();
+
+        window.location.hash = '';
+    });
+
+    it('nextTab stays on same tab when next tab is last and disabled and cycle is false', async() => {
+        const tabs = await createVm();
+        tabs.selectTab("#second-tab", null);
+        tabs.nextTab(false);
+
+        expect(tabs.activeTabHash).toEqual('#second-tab');
+    });
+
+    it('nextTab moves to first tab when last tab is disabled', async() => {
+        const tabs = await createVm();
+        tabs.selectTab("#second-tab", null);
+        tabs.nextTab(true);
+
+        expect(tabs.activeTabHash).toEqual('#first-tab');
+    });   
+    
+    it('previousTab cycles round to previous non-disabled tab when last tab is disabled', async() => {
+        const tabs = await createVm();
+        tabs.previousTab(true);
+
+        expect(tabs.activeTabHash).toEqual('#second-tab');
+    });        
+
+    it('previousTab goes to previous non-disabled tab', async() => {
+        document.body.innerHTML = `
+            <div id="app">
+                <tabs cache-lifetime="0">
+                    <tab name="First tab" :is-disabled="true">
+                        First tab content
+                    </tab>
+                    <tab name="Second tab">
+                        Second tab content
+                    </tab>
+                    <tab name="Third tab">
+                        Third tab content
+                    </tab>
+                </tabs>
+            </div>
+        `;
+
+        const tabs = await createVm();
+        tabs.previousTab(true);
+
+        expect(tabs.activeTabHash).toEqual('#third-tab');
+    });    
+
+    it('nextTab goes to next non-disabled tab', async() => {
+        document.body.innerHTML = `
+            <div id="app">
+                <tabs cache-lifetime="0">
+                    <tab name="First tab">
+                        First tab content
+                    </tab>
+                    <tab name="Second tab" :is-disabled="true">
+                        Second tab content
+                    </tab>
+                    <tab name="Third tab">
+                        Third tab content
+                    </tab>
+                </tabs>
+            </div>
+        `;
+
+        const tabs = await createVm();
+        tabs.nextTab();
+
+        expect(tabs.activeTabHash).toEqual('#third-tab');
     });
 });
 
