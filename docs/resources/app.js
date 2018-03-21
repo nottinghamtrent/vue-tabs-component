@@ -11926,6 +11926,10 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
         computed: {
             storageKey: function storageKey() {
                 return 'vue-tabs-component.cache.' + window.location.host + window.location.pathname;
+            },
+            activeTabIndex: function activeTabIndex() {
+                var tab = this.findTab(this.activeTabHash);
+                return this.tabs.indexOf(tab);
             }
         },
 
@@ -12012,6 +12016,55 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
                         return true;
                     });
                 }
+            },
+            nextTab: function nextTab() {
+                var cycle = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+
+                var currentIndex = this.activeTabIndex;
+                var newIndex = currentIndex;
+
+                // Loop through each 'next' tab until we find one we can goto (i.e. not disabled)
+                do {
+                    newIndex++;
+                    if (newIndex === this.tabs.length) {
+                        newIndex = cycle ? 0 : currentIndex;
+                    }
+                } while (!this.canMoveToSelectedIndex(newIndex));
+
+                this.selectTabByIndex(newIndex);
+            },
+            previousTab: function previousTab() {
+                var cycle = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+
+                var currentIndex = this.activeTabIndex;
+                var newIndex = currentIndex;
+
+                // Loop through each 'previous' tab until we find one we can goto (i.e. not disabled)
+                do {
+                    newIndex--;
+                    if (newIndex < 0) {
+                        newIndex = cycle ? this.tabs.length - 1 : currentIndex;
+                    }
+                } while (!this.canMoveToSelectedIndex(newIndex));
+
+                this.selectTabByIndex(newIndex);
+            },
+            canMoveToSelectedIndex: function canMoveToSelectedIndex(index) {
+                var tabHash = this.tabs[index].hash;
+                var newTab = this.findTab(tabHash);
+
+                // If the tab is disabled, we can't select it
+                if (newTab.isDisabled) {
+                    return false;
+                }
+
+                return true;
+            },
+            selectTabByIndex: function selectTabByIndex(index) {
+                var tab = this.tabs[index];
+                var href = tab.hash;
+
+                this.selectTab(href, null);
             }
         }
     };
@@ -12394,6 +12447,22 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       }
     })])
   })), _vm._v(" "), _c('div', {
+    staticClass: "tabs-component-navigation"
+  }, [_c('span', [_c('button', {
+    staticClass: "previous",
+    on: {
+      "click": function($event) {
+        _vm.previousTab(true)
+      }
+    }
+  }, [_vm._v("Previous")])]), _vm._v(" "), _c('span', [_c('button', {
+    staticClass: "next",
+    on: {
+      "click": function($event) {
+        _vm.nextTab(true)
+      }
+    }
+  }, [_vm._v("Next")])])]), _vm._v(" "), _c('div', {
     staticClass: "tabs-component-panels"
   }, [_vm._t("default")], 2)])
 },staticRenderFns: []}
