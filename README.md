@@ -39,20 +39,14 @@ The rendered output adheres to [the ARIA specification](http://heydonworks.com/p
 
 ## Demo
 
-You can see a demo here: http://vue-tabs-component.spatie.be
+You can see a demo here: https://nottinghamtrent.github.io/vue-tabs-component/ (original version at http://vue-tabs-component.spatie.be)
 
 ## Installation
 
 You can install the package via yarn:
 
 ```bash
-yarn add vue-tabs-component
-```
-
-or npm:
-
-```php
-npm install vue-tabs-component --save
+yarn add https://github.com/nottinghamtrent/vue-tabs-component
 ```
 
 ## Usage
